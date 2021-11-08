@@ -6,7 +6,6 @@ import 'model2.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 
-
 class Details extends StatefulWidget {
   final String schemeCode;
   const Details({Key? key, required this.schemeCode}) : super(key: key);
@@ -25,6 +24,7 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
           scheme_category: ''),
       navList: [Data(date: '', nav: '')],
       status: '');
+  List<bool> duration = [true, false, false, false];
   Color change_color = Colors.green;
   double current_day = 0.0, previous_day = 0.0;
   int time_period = 7;
@@ -47,7 +47,8 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
     }
     return change;
   }
-    void fetchData2() async {
+
+  void fetchData2() async {
     String url1 = 'https://api.mfapi.in/mf/${widget.schemeCode}';
 
     final response = await http.get(Uri.parse(url1));
@@ -62,14 +63,33 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
       throw Exception('Unexpected error occurred!');
     }
   }
-  void change_time_period (int t){
-    time_period=t;
-    if (t>_fullDetails.navList.length){
-      time_period=_fullDetails.navList.length;
+
+  void change_time_period(int t) {
+    for (int i = 0; i < duration.length; i++) {
+      duration[i] = false;
+    }
+    switch (t) {
+      case 7:
+        duration[0] = true;
+        break;
+      case 30:
+        duration[1] = true;
+        break;
+      case 365:
+        duration[2] = true;
+        break;
+      case 1800:
+        duration[3] = true;
+        break;
+      default:
+        duration[0] = true;
+    }
+    time_period = t;
+    if (t > _fullDetails.navList.length) {
+      time_period = _fullDetails.navList.length;
     }
     setState(() {});
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +113,10 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
                   maxLines: 3,
                   style: TextStyle(fontSize: 24),
                 )),
-                GestureDetector(onTap: (){Navigator.pop(context);},
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
                   child: Container(
                     child: Icon(
                       Icons.clear,
@@ -135,7 +158,8 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
             Container(
               height: h,
               width: w,
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TabBar(
                       controller: _tabController,
@@ -158,7 +182,7 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
                         )
                       ]),
                   Container(
-                    height: h*0.65,
+                    height: h * 0.65,
                     child: TabBarView(
                       controller: _tabController,
                       children: [
@@ -166,36 +190,73 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
                             decoration: BoxDecoration(
                                 border: Border.all(color: Colors.blue)),
                             width: w * 0.4,
-                            height: h*0.5,
+                            height: h * 0.5,
                             child:
-                            // Text('Performance Chart')),
-                            Column(
+                                // Text('Performance Chart')),
+                                Column(
                               children: [
                                 SfCartesianChart(
-                                  primaryXAxis: CategoryAxis(),
-                                  title: ChartTitle(text: 'Performance Chart'),
-                                  legend: Legend(isVisible: false),
-                                  tooltipBehavior: TooltipBehavior(enable: true),
-                                  series: <ChartSeries<Data, String>>[
-                                  LineSeries<Data, String>(
-                                      dataSource: _fullDetails.navList.sublist(0,time_period).reversed.toList(),
-                                      xValueMapper: (Data sales, _) => sales.date,
-                                      yValueMapper: (Data sales, _) => double.tryParse(sales.nav),
-                                      name: 'NAV Value',
-                                      // Enable data label
-                                      dataLabelSettings: DataLabelSettings(isVisible: false))
-                                ]),
+                                    primaryXAxis: CategoryAxis(),
+                                    title:
+                                        ChartTitle(text: 'Performance Chart'),
+                                    legend: Legend(isVisible: false),
+                                    tooltipBehavior:
+                                        TooltipBehavior(enable: true),
+                                    series: <ChartSeries<Data, String>>[
+                                      LineSeries<Data, String>(
+                                          dataSource: _fullDetails.navList
+                                              .sublist(0, time_period)
+                                              .reversed
+                                              .toList(),
+                                          xValueMapper: (Data sales, _) =>
+                                              sales.date,
+                                          yValueMapper: (Data sales, _) =>
+                                              double.tryParse(sales.nav),
+                                          name: 'NAV Value',
+                                          // Enable data label
+                                          dataLabelSettings: DataLabelSettings(
+                                              isVisible: false))
+                                    ]),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
                                   children: [
-                                    MaterialButton(onPressed: (){change_time_period(7);},textColor: Colors.white,child:Text('1 W'),color: Colors.blue,splashColor: Colors.green,),
-                                    MaterialButton(onPressed: (){change_time_period(30);},textColor: Colors.white,child:Text('1 M'),color: Colors.blue,splashColor: Colors.green,),
-                                    MaterialButton(onPressed: (){change_time_period(360);},textColor: Colors.white,child:Text('1 Y'),color: Colors.blue,splashColor: Colors.green,),
-                                    MaterialButton(onPressed: (){change_time_period(1800);},textColor: Colors.white,child:Text('5 Y'),color: Colors.blue,splashColor: Colors.green,),
+                                    MaterialButton(
+                                      onPressed: () {
+                                        change_time_period(7);
+                                      },
+                                      textColor: duration[0]==true ? Colors.white : Colors.blue,
+                                      child: Text('1 W'),
+                                      color: duration[0]==true ? Colors.blue : Colors.white,
+
+                                    ),
+                                    MaterialButton(
+                                      onPressed: () {
+                                        change_time_period(30);
+                                      },
+                                      textColor: duration[1]==true ? Colors.white : Colors.blue,
+                                      child: Text('1 M'),
+                                      color: duration[1]==true ? Colors.blue : Colors.white,
+
+                                    ),  MaterialButton(
+                                      onPressed: () {
+                                        change_time_period(365);
+                                      },
+                                      textColor: duration[2]==true ? Colors.white : Colors.blue,
+                                      child: Text('1 Y'),
+                                      color: duration[2]==true ? Colors.blue : Colors.white,
+
+                                    ),  MaterialButton(
+                                      onPressed: () {
+                                        change_time_period(1800);
+                                      },
+                                      textColor: duration[3]==true ? Colors.white : Colors.blue,
+                                      child: Text('5 Y'),
+                                      color: duration[3]==true ? Colors.blue : Colors.white,
+
+                                    ),
                                   ],
                                 ),
-
-
                               ],
                             )),
                         Container(
@@ -205,7 +266,7 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
                             child: Container(
                               padding:
                                   EdgeInsets.symmetric(vertical: h * 0.025),
-                              height: h*0.2,
+                              height: h * 0.2,
                               child: ListView.builder(
                                   shrinkWrap: true,
                                   itemCount: _fullDetails.navList.length,
@@ -233,11 +294,9 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
                 ],
               ),
             ),
-
           ]),
         ),
       ),
     );
   }
 }
-
