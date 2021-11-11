@@ -56,9 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-
     _query();
   }
 
@@ -102,46 +100,48 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         elevation: 1,
-        title: !isSearch ? Text('Scheme Analyzer'):
-        Container(
-          width: double.infinity,
-          height: 40,
-          decoration: BoxDecoration(
-              color: Colors.white, borderRadius: BorderRadius.circular(5)),
-          child: Center(
-            child: TextField(
-              controller: searchField,
-              decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.search),
-                  suffixIcon: IconButton(
-                      icon: Icon(Icons.clear),
-                      onPressed: () {
-                        setState(() {
-                          searchField.clear();
-                          match.clear();
-                          isSearch=false;
-                        });
-                      }),
-                  hintText: 'Search...',
-                  border: InputBorder.none),
-              onChanged: (val) {
-                match.clear();
+        title: !isSearch
+            ? Text('Scheme Analyzer')
+            : Container(
+                width: double.infinity,
+                height: 40,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(5)),
+                child: Center(
+                  child: TextField(
+                    controller: searchField,
+                    decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.search),
+                        suffixIcon: IconButton(
+                            icon: Icon(Icons.clear),
+                            onPressed: () {
+                              setState(() {
+                                searchField.clear();
+                                match.clear();
+                                isSearch = false;
+                              });
+                            }),
+                        hintText: 'Search...',
+                        border: InputBorder.none),
+                    onChanged: (val) {
+                      match.clear();
 
-                for (int i = 0; result.length > i; i++) {
-                  if (result[i]
-                      .schemeName
-                      .toLowerCase()
-                      .contains(val.toLowerCase()) ||
-                      result[i].schemeCode.toString().contains(val)) {
-                    match.add(result[i]);
-                  }
-                }
+                      for (int i = 0; result.length > i; i++) {
+                        if (result[i]
+                                .schemeName
+                                .toLowerCase()
+                                .contains(val.toLowerCase()) ||
+                            result[i].schemeCode.toString().contains(val)) {
+                          match.add(result[i]);
+                        }
+                      }
 
-                setState(() {});
-              },
-            ),
-          ),
-        ),
+                      setState(() {});
+                    },
+                  ),
+                ),
+              ),
         actions: <Widget>[
           Visibility(
             visible: !isSearch,
@@ -150,9 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 icon: Icon(Icons.search),
                 onPressed: () {
                   isSearch = true;
-                  setState(() {
-
-                  });
+                  setState(() {});
                 },
               ),
             ),
@@ -191,7 +189,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                             )));
                               },
                               child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: w*0.01,vertical: h*0.005),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: w * 0.01, vertical: h * 0.005),
                                 child: Card(
                                   margin: EdgeInsets.zero,
                                   elevation: 2,
@@ -199,18 +198,22 @@ class _MyHomePageState extends State<MyHomePage> {
                                     child: ListTile(
                                       onTap: () {
                                         Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) => Details(
-                                                      schemeCode: match[index]
-                                                          .schemeCode
-                                                          .toString(),
-                                                    )));
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => Details(
+                                              schemeCode: match[index]
+                                                  .schemeCode
+                                                  .toString(),
+                                            ),
+                                          ),
+                                        );
                                       },
-                                      title: Text("Scheme Code : " +
-                                          match[index].schemeCode.toString()),
-                                      subtitle: Text("Scheme Name : " +
-                                          match[index].schemeName),
+                                      title: Text(match[index].schemeName),
+                                      subtitle: Padding(
+                                        padding: EdgeInsets.symmetric(vertical: 5.0),
+                                        child: Text("Scheme Code : " +
+                                            match[index].schemeCode.toString()),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -225,7 +228,6 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: CircularProgressIndicator(),
                       )
                     : ListView.builder(
-
                         itemCount: result.length,
                         itemBuilder: (BuildContext context, int index) {
                           //
@@ -235,7 +237,9 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: Column(
                                 children: [
                                   Padding(
-                                    padding:  EdgeInsets.symmetric(horizontal: w*0.01,vertical: h*0.005),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: w * 0.01,
+                                        vertical: h * 0.005),
                                     child: GestureDetector(
                                       onTap: () {
                                         Navigator.push(
@@ -247,22 +251,23 @@ class _MyHomePageState extends State<MyHomePage> {
                                                           .toString(),
                                                     )));
                                       },
-                                      child: Card(margin: EdgeInsets.zero,
-                                          elevation: 2,
-                                          child: Container(
-                                            child: ListTile(
-                                              leading: Text(
-                                                "${index + 1}",
-                                                style:
-                                                    TextStyle(fontSize: 20.0),
-                                              ),
-                                              title: Text(result[index]
-                                                  .schemeCode
-                                                  .toString()),
-                                              subtitle: Text(
-                                                  result[index].schemeName),
+                                      child: Card(
+                                        margin: EdgeInsets.zero,
+                                        elevation: 2,
+                                        child: Container(
+                                          child: ListTile(
+                                            title:
+                                                Text(result[index].schemeName),
+                                            subtitle: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 5),
+                                              child: Text("Scheme Code: "
+                                                  "${result[index].schemeCode.toString()}"),
                                             ),
-                                          )),
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ],

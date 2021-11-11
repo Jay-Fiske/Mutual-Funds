@@ -156,9 +156,9 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
             ),
             Container(
               height: h,
-              width: w,
+              width: w*0.95,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   TabBar(
                       controller: _tabController,
@@ -181,6 +181,8 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
                         )
                       ]),
                   Container(
+                    alignment: Alignment.center,
+                    width: w*0.95,
                     height: h * 0.65,
                     child: TabBarView(
                       controller: _tabController,
@@ -191,7 +193,6 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
                             width: w * 0.4,
                             height: h * 0.5,
                             child:
-                                // Text('Performance Chart')),
                                 Column(
                               children: [
                                 SfCartesianChart(
@@ -270,34 +271,31 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
                               ],
                             )),
                         Container(
-                            decoration: BoxDecoration(
-                                border: Border.all(color: Colors.blue)),
-                            width: w * 0.4,
-                            child: Container(
-                              padding:
-                                  EdgeInsets.symmetric(vertical: h * 0.025),
-                              height: h * 0.2,
-                              child: ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: _fullDetails.navList.length,
-                                  itemBuilder: (context, index) {
-                                    return Container(
-                                      height: 20,
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceAround,
-                                        children: [
-                                          Text(_fullDetails.navList[index]
-                                              .toMap()['date']
-                                              .toString()),
-                                          Text(_fullDetails.navList[index]
-                                              .toMap()['nav']
-                                              .toString())
-                                        ],
-                                      ),
-                                    );
-                                  }),
-                            ))
+                          height: h * 0.1,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.blue)
+                          ),
+                          child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: _fullDetails.navList.length,
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  height: h*0.02,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Text(_fullDetails.navList[index]
+                                          .toMap()['date']
+                                          .toString()),
+                                      Text(_fullDetails.navList[index]
+                                          .toMap()['nav']
+                                          .toString())
+                                    ],
+                                  ),
+                                );
+                              }),
+                        )
                       ],
                     ),
                   ),
