@@ -216,45 +216,56 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
                                           dataLabelSettings: DataLabelSettings(
                                               isVisible: false))
                                     ]),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    MaterialButton(
-                                      onPressed: () {
-                                        change_time_period(7);
-                                      },
-                                      textColor: duration[0]==true ? Colors.white : Colors.blue,
-                                      child: Text('1 W'),
-                                      color: duration[0]==true ? Colors.blue : Colors.white,
+                                Container(
+                                  width: w,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Container(width: w*0.2,
+                                        child: MaterialButton(
+                                          onPressed: () {
+                                            change_time_period(7);
+                                          },
+                                          textColor: duration[0]==true ? Colors.white : Colors.blue,
+                                          child: Text('1 W'),
+                                          color: duration[0]==true ? Colors.blue : Colors.white,
 
-                                    ),
-                                    MaterialButton(
-                                      onPressed: () {
-                                        change_time_period(30);
-                                      },
-                                      textColor: duration[1]==true ? Colors.white : Colors.blue,
-                                      child: Text('1 M'),
-                                      color: duration[1]==true ? Colors.blue : Colors.white,
+                                        ),
+                                      ),
+                                      Container(width: w*0.2,
+                                        child: MaterialButton(
+                                          onPressed: () {
+                                            change_time_period(30);
+                                          },
+                                          textColor: duration[1]==true ? Colors.white : Colors.blue,
+                                          child: Text('1 M'),
+                                          color: duration[1]==true ? Colors.blue : Colors.white,
 
-                                    ),  MaterialButton(
-                                      onPressed: () {
-                                        change_time_period(365);
-                                      },
-                                      textColor: duration[2]==true ? Colors.white : Colors.blue,
-                                      child: Text('1 Y'),
-                                      color: duration[2]==true ? Colors.blue : Colors.white,
+                                        ),
+                                      ),  Container(width: w*0.2,
+                                        child: MaterialButton(
+                                          onPressed: () {
+                                            change_time_period(365);
+                                          },
+                                          textColor: duration[2]==true ? Colors.white : Colors.blue,
+                                          child: Text('1 Y'),
+                                          color: duration[2]==true ? Colors.blue : Colors.white,
 
-                                    ),  MaterialButton(
-                                      onPressed: () {
-                                        change_time_period(1800);
-                                      },
-                                      textColor: duration[3]==true ? Colors.white : Colors.blue,
-                                      child: Text('5 Y'),
-                                      color: duration[3]==true ? Colors.blue : Colors.white,
+                                        ),
+                                      ),  Container(width: w*0.2,
+                                        child: MaterialButton(
+                                          onPressed: () {
+                                            change_time_period(1800);
+                                          },
+                                          textColor: duration[3]==true ? Colors.white : Colors.blue,
+                                          child: Text('5 Y'),
+                                          color: duration[3]==true ? Colors.blue : Colors.white,
 
-                                    ),
-                                  ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             )),

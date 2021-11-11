@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'database_helper.dart';
 import 'individual_stock.dart';
@@ -47,7 +46,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final client = Dio();
+  bool isSearch = false;
   var isLoading = false;
   List<Stock> futureData = [];
 
@@ -103,7 +102,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         elevation: 1,
-        title: Container(
+        title: !isSearch ? Text('Scheme Analyzer'):
+        Container(
           width: double.infinity,
           height: 40,
           decoration: BoxDecoration(
@@ -119,6 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         setState(() {
                           searchField.clear();
                           match.clear();
+                          isSearch=false;
                         });
                       }),
                   hintText: 'Search...',
@@ -128,9 +129,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 for (int i = 0; result.length > i; i++) {
                   if (result[i]
-                          .schemeName
-                          .toLowerCase()
-                          .contains(val.toLowerCase()) ||
+                      .schemeName
+                      .toLowerCase()
+                      .contains(val.toLowerCase()) ||
                       result[i].schemeCode.toString().contains(val)) {
                     match.add(result[i]);
                   }
@@ -141,10 +142,22 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ),
-        centerTitle: true,
         actions: <Widget>[
+          Visibility(
+            visible: !isSearch,
+            child: Container(
+              child: IconButton(
+                icon: Icon(Icons.search),
+                onPressed: () {
+                  isSearch = true;
+                  setState(() {
+
+                  });
+                },
+              ),
+            ),
+          ),
           Container(
-            padding: EdgeInsets.only(right: 10.0),
             child: IconButton(
               icon: Icon(Icons.refresh_rounded),
               onPressed: () {
@@ -172,26 +185,28 @@ class _MyHomePageState extends State<MyHomePage> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => Details(
-                                          schemeCode: result[index]
-                                              .schemeCode
-                                              .toString(),
-                                        )));
+                                              schemeCode: result[index]
+                                                  .schemeCode
+                                                  .toString(),
+                                            )));
                               },
                               child: Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding: EdgeInsets.symmetric(horizontal: w*0.01,vertical: h*0.005),
                                 child: Card(
+                                  margin: EdgeInsets.zero,
                                   elevation: 2,
                                   child: Container(
-                                    margin: EdgeInsets.all(4),
                                     child: ListTile(
-                                      onTap: () {       Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => Details(
-                                                  schemeCode: match[index]
-                                                    .schemeCode
-                                                    .toString(),
-                                              )));},
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => Details(
+                                                      schemeCode: match[index]
+                                                          .schemeCode
+                                                          .toString(),
+                                                    )));
+                                      },
                                       title: Text("Scheme Code : " +
                                           match[index].schemeCode.toString()),
                                       subtitle: Text("Scheme Name : " +
@@ -209,10 +224,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     ? Center(
                         child: CircularProgressIndicator(),
                       )
-                    : ListView.separated(
-                        separatorBuilder: (context, index) => const Divider(
-                          color: Colors.black12,
-                        ),
+                    : ListView.builder(
+
                         itemCount: result.length,
                         itemBuilder: (BuildContext context, int index) {
                           //
@@ -222,23 +235,21 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: Column(
                                 children: [
                                   Padding(
-                                    padding: const EdgeInsets.all(4.0),
+                                    padding:  EdgeInsets.symmetric(horizontal: w*0.01,vertical: h*0.005),
                                     child: GestureDetector(
-
                                       onTap: () {
                                         Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) => Details(
-                                                  schemeCode: result[index]
-                                                      .schemeCode
-                                                      .toString(),
-                                                )));
+                                                      schemeCode: result[index]
+                                                          .schemeCode
+                                                          .toString(),
+                                                    )));
                                       },
-                                      child: Card(
+                                      child: Card(margin: EdgeInsets.zero,
                                           elevation: 2,
                                           child: Container(
-                                            margin: EdgeInsets.all(2),
                                             child: ListTile(
                                               leading: Text(
                                                 "${index + 1}",
