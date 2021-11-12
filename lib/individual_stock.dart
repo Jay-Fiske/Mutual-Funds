@@ -28,6 +28,7 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
   Color change_color = Colors.green;
   double current_day = 0.0, previous_day = 0.0;
   int time_period = 7;
+  String sign = '+';
   late TabController _tabController;
   @override
   void initState() {
@@ -39,9 +40,11 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
 
   double percent_change() {
     double change;
+
     change = current_day - previous_day;
     change = (change * 100) / previous_day;
     if (change < 0) {
+      sign = '-';
       change_color = Colors.red;
       setState(() {});
     }
@@ -135,15 +138,15 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          '${(current_day-previous_day).toStringAsFixed(3)}',
-                          style: TextStyle(color: change_color),
+                        Text('$sign'
+                          '${(current_day-previous_day).abs().toStringAsFixed(3)}',
+                          style: TextStyle(color: change_color,fontSize: w*0.05),
                         ),
                         SizedBox(width: w*0.02,),
                         Container(decoration: BoxDecoration(color: change_color,borderRadius: BorderRadius.circular(w*0.01)),
                           padding: EdgeInsets.all(w*0.005),
                           child: Text(
-                            '(${percent_change().toStringAsFixed(4)}%)',
+                            '(${percent_change().abs().toStringAsFixed(4)}%)',
                             style: TextStyle(color: Colors.white),
                           ),
                         )
