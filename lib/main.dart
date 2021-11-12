@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'database_helper.dart';
 import 'individual_stock.dart';
 import 'model.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   HttpOverrides.global = MyHttpOverrides();
@@ -103,45 +104,45 @@ class _MyHomePageState extends State<MyHomePage> {
         title: !isSearch
             ? Text('Scheme Analyzer')
             : Container(
-                width: double.infinity,
-                height: 40,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(5)),
-                child: Center(
-                  child: TextField(
-                    controller: searchField,
-                    decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.search),
-                        suffixIcon: IconButton(
-                            icon: Icon(Icons.clear),
-                            onPressed: () {
-                              setState(() {
-                                searchField.clear();
-                                match.clear();
-                                isSearch = false;
-                              });
-                            }),
-                        hintText: 'Search...',
-                        border: InputBorder.none),
-                    onChanged: (val) {
-                      match.clear();
+          width: double.infinity,
+          height: 40,
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(5)),
+          child: Center(
+            child: TextField(
+              controller: searchField,
+              decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.search),
+                  suffixIcon: IconButton(
+                      icon: Icon(Icons.clear),
+                      onPressed: () {
+                        setState(() {
+                          searchField.clear();
+                          match.clear();
+                          isSearch = false;
+                        });
+                      }),
+                  hintText: 'Search...',
+                  border: InputBorder.none),
+              onChanged: (val) {
+                match.clear();
 
-                      for (int i = 0; result.length > i; i++) {
-                        if (result[i]
-                                .schemeName
-                                .toLowerCase()
-                                .contains(val.toLowerCase()) ||
-                            result[i].schemeCode.toString().contains(val)) {
-                          match.add(result[i]);
-                        }
-                      }
+                for (int i = 0; result.length > i; i++) {
+                  if (result[i]
+                      .schemeName
+                      .toLowerCase()
+                      .contains(val.toLowerCase()) ||
+                      result[i].schemeCode.toString().contains(val)) {
+                    match.add(result[i]);
+                  }
+                }
 
-                      setState(() {});
-                    },
-                  ),
-                ),
-              ),
+                setState(() {});
+              },
+            ),
+          ),
+        ),
         actions: <Widget>[
           Visibility(
             visible: !isSearch,
@@ -172,110 +173,110 @@ class _MyHomePageState extends State<MyHomePage> {
           Expanded(
             child: match.isNotEmpty
                 ? ListView.builder(
-                    itemCount: match.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return Center(
-                        child: Column(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
+                itemCount: match.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Center(
+                    child: Column(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Details(
+                                      schemeCode: result[index]
+                                          .schemeCode
+                                          .toString(),
+                                    )));
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: w * 0.01, vertical: h * 0.005),
+                            child: Card(
+                              margin: EdgeInsets.zero,
+                              elevation: 2,
+                              child: Container(
+                                child: ListTile(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
                                         builder: (context) => Details(
-                                              schemeCode: result[index]
-                                                  .schemeCode
-                                                  .toString(),
-                                            )));
-                              },
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: w * 0.01, vertical: h * 0.005),
-                                child: Card(
-                                  margin: EdgeInsets.zero,
-                                  elevation: 2,
-                                  child: Container(
-                                    child: ListTile(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => Details(
-                                              schemeCode: match[index]
-                                                  .schemeCode
-                                                  .toString(),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      title: Text(match[index].schemeName),
-                                      subtitle: Padding(
-                                        padding: EdgeInsets.symmetric(vertical: 5.0),
-                                        child: Text("Scheme Code : " +
-                                            match[index].schemeCode.toString()),
+                                          schemeCode: match[index]
+                                              .schemeCode
+                                              .toString(),
+                                        ),
                                       ),
-                                    ),
+                                    );
+                                  },
+                                  title: Text(match[index].schemeName,style: GoogleFonts.montserrat()),
+                                  subtitle: Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 5.0),
+                                    child: Text("Scheme Code : " +
+                                        match[index].schemeCode.toString()),
                                   ),
                                 ),
                               ),
                             ),
-                          ],
+                          ),
                         ),
-                      );
-                    })
+                      ],
+                    ),
+                  );
+                })
                 : result.isEmpty
-                    ? Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    : ListView.builder(
-                        itemCount: result.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          //
-                          // log('array size ${snapshot.data.length}');
-                          return Container(
-                            child: Center(
-                              child: Column(
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: w * 0.01,
-                                        vertical: h * 0.005),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) => Details(
-                                                      schemeCode: result[index]
-                                                          .schemeCode
-                                                          .toString(),
-                                                    )));
-                                      },
-                                      child: Card(
-                                        margin: EdgeInsets.zero,
-                                        elevation: 2,
-                                        child: Container(
-                                          child: ListTile(
-                                            title:
-                                                Text(result[index].schemeName),
-                                            subtitle: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 5),
-                                              child: Text("Scheme Code: "
-                                                  "${result[index].schemeCode.toString()}"),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                ? Center(
+              child: CircularProgressIndicator(),
+            )
+                : ListView.builder(
+              itemCount: result.length,
+              itemBuilder: (BuildContext context, int index) {
+                //
+                // log('array size ${snapshot.data.length}');
+                return Container(
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: w * 0.01,
+                              vertical: h * 0.005),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Details(
+                                        schemeCode: result[index]
+                                            .schemeCode
+                                            .toString(),
+                                      )));
+                            },
+                            child: Card(
+                              margin: EdgeInsets.zero,
+                              elevation: 2,
+                              child: Container(
+                                child: ListTile(
+                                  title:
+                                  Text(result[index].schemeName,style: GoogleFonts.montserrat(),),
+                                  subtitle: Padding(
+                                    padding:
+                                    const EdgeInsets.symmetric(
+                                        vertical: 5),
+                                    child: Text("Scheme Code: "
+                                        "${result[index].schemeCode.toString()}"),
                                   ),
-                                ],
+                                ),
                               ),
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),

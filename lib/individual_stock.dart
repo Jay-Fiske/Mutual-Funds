@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'model2.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -95,68 +96,62 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
     double h = MediaQuery.of(context).size.height;
     double w = MediaQuery.of(context).size.width;
     return Scaffold(
+      appBar: AppBar(
+        iconTheme: IconThemeData(color: Colors.black),
+        backgroundColor: Colors.white,
+        elevation: 0,
+      ),
       body: Padding(
-        padding: EdgeInsets.only(
-            top: MediaQuery.of(context).padding.top,
-            left: w * 0.02,
-            right: w * 0.02),
+        padding: EdgeInsets.symmetric(horizontal: w * 0.02),
         child: SingleChildScrollView(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                    child: Text(
-                  _fullDetails.stocks.schemeName,
-                  maxLines: 3,
-                  style: TextStyle(fontSize: 24),
-                )),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: Container(
-                    child: Icon(
-                      Icons.clear,
-                      size: w * 0.05,
-                    ),
-                  ),
-                )
-              ],
-            ),
-            Container(
-                alignment: Alignment.bottomLeft,
-                height: h * 0.075,
-                width: w,
-                child: Row(
-                  children: [
-                    Text(
-                      current_day.toStringAsFixed(2),
-                      maxLines: 2,
-                      style: TextStyle(fontSize: 24),
-                    ),
-                    SizedBox(
-                      width: w * 0.03,
-                    ),
-                    Text(
-                      '(${percent_change().toStringAsFixed(4)}%)',
-                      style: TextStyle(color: change_color),
-                    )
-                  ],
-                )),
-            Container(
-              alignment: Alignment.topLeft,
-              height: h * 0.05,
-              width: w,
+            Center(
               child: Text(
-                _fullDetails.navList[0].toMap()['date'],
-                style: TextStyle(color: Colors.grey),
+                _fullDetails.stocks.schemeName,
+                style: GoogleFonts.montserrat(fontSize: w * 0.05),
               ),
             ),
+                Container(padding: EdgeInsets.symmetric(vertical: h*0.01),
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    _fullDetails.stocks.fund_house,
+                    style: TextStyle(color: Colors.grey),textAlign:TextAlign.left,
+                  ),
+                ),
+            Container(
+                    alignment: Alignment.bottomCenter,
+                    height: h * 0.075,
+                    width: w,
+                    child:Text(
+                      current_day.toStringAsFixed(2),
+                      maxLines: 2,
+                      style: TextStyle(fontSize: w*0.1),
+                    ),),
+                Container(
+                    alignment: Alignment.topCenter,
+                    height: h * 0.075,
+                    width: w,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '${(current_day-previous_day).toStringAsFixed(3)}',
+                          style: TextStyle(color: change_color),
+                        ),
+                        SizedBox(width: w*0.02,),
+                        Container(decoration: BoxDecoration(color: change_color,borderRadius: BorderRadius.circular(w*0.01)),
+                          padding: EdgeInsets.all(w*0.005),
+                          child: Text(
+                            '(${percent_change().toStringAsFixed(4)}%)',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        )
+                      ],
+                    ),
+                ),
             Container(
               height: h,
-              width: w*0.95,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -182,7 +177,6 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
                       ]),
                   Container(
                     alignment: Alignment.center,
-                    width: w*0.95,
                     height: h * 0.65,
                     child: TabBarView(
                       controller: _tabController,
@@ -192,8 +186,7 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
                                 border: Border.all(color: Colors.blue)),
                             width: w * 0.4,
                             height: h * 0.5,
-                            child:
-                                Column(
+                            child: Column(
                               children: [
                                 SfCartesianChart(
                                     primaryXAxis: CategoryAxis(),
@@ -223,46 +216,64 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceEvenly,
                                     children: [
-                                      Container(width: w*0.2,
+                                      Container(
+                                        width: w * 0.2,
                                         child: MaterialButton(
                                           onPressed: () {
                                             change_time_period(7);
                                           },
-                                          textColor: duration[0]==true ? Colors.white : Colors.blue,
+                                          textColor: duration[0] == true
+                                              ? Colors.white
+                                              : Colors.blue,
                                           child: Text('1 W'),
-                                          color: duration[0]==true ? Colors.blue : Colors.white,
-
+                                          color: duration[0] == true
+                                              ? Colors.blue
+                                              : Colors.white,
                                         ),
                                       ),
-                                      Container(width: w*0.2,
+                                      Container(
+                                        width: w * 0.2,
                                         child: MaterialButton(
                                           onPressed: () {
                                             change_time_period(30);
                                           },
-                                          textColor: duration[1]==true ? Colors.white : Colors.blue,
+                                          textColor: duration[1] == true
+                                              ? Colors.white
+                                              : Colors.blue,
                                           child: Text('1 M'),
-                                          color: duration[1]==true ? Colors.blue : Colors.white,
-
+                                          color: duration[1] == true
+                                              ? Colors.blue
+                                              : Colors.white,
                                         ),
-                                      ),  Container(width: w*0.2,
+                                      ),
+                                      Container(
+                                        width: w * 0.2,
                                         child: MaterialButton(
                                           onPressed: () {
                                             change_time_period(365);
                                           },
-                                          textColor: duration[2]==true ? Colors.white : Colors.blue,
+                                          textColor: duration[2] == true
+                                              ? Colors.white
+                                              : Colors.blue,
                                           child: Text('1 Y'),
-                                          color: duration[2]==true ? Colors.blue : Colors.white,
-
+                                          color: duration[2] == true
+                                              ? Colors.blue
+                                              : Colors.white,
                                         ),
-                                      ),  Container(width: w*0.2,
+                                      ),
+                                      Container(
+                                        width: w * 0.2,
                                         child: MaterialButton(
                                           onPressed: () {
                                             change_time_period(1800);
                                           },
-                                          textColor: duration[3]==true ? Colors.white : Colors.blue,
+                                          textColor: duration[3] == true
+                                              ? Colors.white
+                                              : Colors.blue,
                                           child: Text('5 Y'),
-                                          color: duration[3]==true ? Colors.blue : Colors.white,
-
+                                          color: duration[3] == true
+                                              ? Colors.blue
+                                              : Colors.white,
                                         ),
                                       ),
                                     ],
@@ -273,14 +284,13 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
                         Container(
                           height: h * 0.1,
                           decoration: BoxDecoration(
-                            border: Border.all(color: Colors.blue)
-                          ),
+                              border: Border.all(color: Colors.blue)),
                           child: ListView.builder(
-                              shrinkWrap: true,
+                              padding: EdgeInsets.only(top: h * 0.01),
                               itemCount: _fullDetails.navList.length,
                               itemBuilder: (context, index) {
                                 return Container(
-                                  height: h*0.02,
+                                  height: h * 0.02,
                                   child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceAround,
