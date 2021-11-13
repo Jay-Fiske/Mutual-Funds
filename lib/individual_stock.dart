@@ -14,7 +14,7 @@ class Details extends StatefulWidget {
   _DetailsState createState() => _DetailsState();
 }
 
-class _DetailsState extends State<Details> with TickerProviderStateMixin {
+class _DetailsState extends State<Details> {
   FullDetails _fullDetails = FullDetails(
       stocks: StockDetails(
           schemeCode: 0,
@@ -24,28 +24,36 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
           scheme_category: ''),
       navList: [Data(date: '', nav: '')],
       status: '');
+  late ZoomPanBehavior zoomPan;
+
+  double scrollExtent = 0;
   List<bool> duration = [true, false, false, false];
-  Color change_color = Colors.green;
+  String time = '1 week';
+  Color change_color = Colors.green.shade600;
   double current_day = 0.0, previous_day = 0.0;
   int time_period = 7;
   String sign = '+';
-  late TabController _tabController;
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    _tabController = TabController(vsync: this, length: 2);
     fetchData2();
+
+    zoomPan = ZoomPanBehavior(
+        enablePinching: true,
+        enableSelectionZooming: true,
+        enableMouseWheelZooming: true,
+        enablePanning: true,
+        zoomMode: ZoomMode.xy);
   }
 
   double percent_change() {
     double change;
-
     change = current_day - previous_day;
     change = (change * 100) / previous_day;
     if (change < 0) {
       sign = '-';
-      change_color = Colors.red;
+      change_color = Colors.red.shade600;
       setState(() {});
     }
     return change;
@@ -115,203 +123,239 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
                 style: GoogleFonts.montserrat(fontSize: w * 0.05),
               ),
             ),
-                Container(padding: EdgeInsets.symmetric(vertical: h*0.01),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    _fullDetails.stocks.fund_house,
-                    style: TextStyle(color: Colors.grey),textAlign:TextAlign.left,
-                  ),
-                ),
             Container(
-                    alignment: Alignment.bottomCenter,
-                    height: h * 0.075,
-                    width: w,
-                    child:Text(
-                      current_day.toStringAsFixed(2),
-                      maxLines: 2,
-                      style: TextStyle(fontSize: w*0.1),
-                    ),),
-                Container(
-                    alignment: Alignment.topCenter,
-                    height: h * 0.075,
-                    width: w,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('$sign'
-                          '${(current_day-previous_day).abs().toStringAsFixed(3)}',
-                          style: TextStyle(color: change_color,fontSize: w*0.05),
-                        ),
-                        SizedBox(width: w*0.02,),
-                        Container(decoration: BoxDecoration(color: change_color,borderRadius: BorderRadius.circular(w*0.01)),
-                          padding: EdgeInsets.all(w*0.005),
-                          child: Text(
-                            '(${percent_change().abs().toStringAsFixed(4)}%)',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        )
-                      ],
-                    ),
-                ),
+              padding: EdgeInsets.symmetric(vertical: h * 0.01),
+              alignment: Alignment.centerLeft,
+              child: Text(
+                _fullDetails.stocks.fund_house,
+                style: GoogleFonts.montserrat(color: Colors.grey),
+                textAlign: TextAlign.left,
+              ),
+            ),
             Container(
-              height: h,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+              alignment: Alignment.bottomCenter,
+              height: h * 0.075,
+              width: w,
+              child: Text(
+                current_day.toStringAsFixed(2),
+                maxLines: 2,
+                style: GoogleFonts.montserrat(fontSize: w * 0.1),
+              ),
+            ),
+            Container(
+              alignment: Alignment.topCenter,
+              height: h * 0.075,
+              width: w,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  TabBar(
-                      controller: _tabController,
-                      indicatorWeight: 3,
-                      indicatorColor: Colors.white,
-                      labelColor: Colors.white,
-                      unselectedLabelColor: Colors.lightBlue,
-                      overlayColor: MaterialStateProperty.all(Colors.blue),
-                      indicator: BoxDecoration(color: Colors.blue),
-                      tabs: [
-                        Tab(
-                          child: Text(
-                            'Performance Chart',
-                          ),
-                          height: h * 0.05,
-                        ),
-                        Tab(
-                          child: Text('Historical Nav'),
-                          height: h * 0.05,
-                        )
-                      ]),
+                  Text(
+                    '$sign'
+                    '${(current_day - previous_day).abs().toStringAsFixed(3)}',
+                    style: GoogleFonts.montserrat(
+                        color: change_color, fontSize: w * 0.05),
+                  ),
+                  SizedBox(
+                    width: w * 0.02,
+                  ),
                   Container(
-                    alignment: Alignment.center,
-                    height: h * 0.65,
-                    child: TabBarView(
-                      controller: _tabController,
-                      children: [
-                        Container(
-                            decoration: BoxDecoration(
-                                border: Border.all(color: Colors.blue)),
-                            width: w * 0.4,
-                            height: h * 0.5,
-                            child: Column(
-                              children: [
-                                SfCartesianChart(
-                                    primaryXAxis: CategoryAxis(),
-                                    title:
-                                        ChartTitle(text: 'Performance Chart'),
-                                    legend: Legend(isVisible: false),
-                                    tooltipBehavior:
-                                        TooltipBehavior(enable: true),
-                                    series: <ChartSeries<Data, String>>[
-                                      LineSeries<Data, String>(
-                                          dataSource: _fullDetails.navList
-                                              .sublist(0, time_period)
-                                              .reversed
-                                              .toList(),
-                                          xValueMapper: (Data sales, _) =>
-                                              sales.date,
-                                          yValueMapper: (Data sales, _) =>
-                                              double.tryParse(sales.nav),
-                                          name: 'NAV Value',
-                                          // Enable data label
-                                          dataLabelSettings: DataLabelSettings(
-                                              isVisible: false))
-                                    ]),
-                                Container(
-                                  width: w,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Container(
-                                        width: w * 0.2,
-                                        child: MaterialButton(
-                                          onPressed: () {
-                                            change_time_period(7);
-                                          },
-                                          textColor: duration[0] == true
-                                              ? Colors.white
-                                              : Colors.blue,
-                                          child: Text('1 W'),
-                                          color: duration[0] == true
-                                              ? Colors.blue
-                                              : Colors.white,
-                                        ),
-                                      ),
-                                      Container(
-                                        width: w * 0.2,
-                                        child: MaterialButton(
-                                          onPressed: () {
-                                            change_time_period(30);
-                                          },
-                                          textColor: duration[1] == true
-                                              ? Colors.white
-                                              : Colors.blue,
-                                          child: Text('1 M'),
-                                          color: duration[1] == true
-                                              ? Colors.blue
-                                              : Colors.white,
-                                        ),
-                                      ),
-                                      Container(
-                                        width: w * 0.2,
-                                        child: MaterialButton(
-                                          onPressed: () {
-                                            change_time_period(365);
-                                          },
-                                          textColor: duration[2] == true
-                                              ? Colors.white
-                                              : Colors.blue,
-                                          child: Text('1 Y'),
-                                          color: duration[2] == true
-                                              ? Colors.blue
-                                              : Colors.white,
-                                        ),
-                                      ),
-                                      Container(
-                                        width: w * 0.2,
-                                        child: MaterialButton(
-                                          onPressed: () {
-                                            change_time_period(1800);
-                                          },
-                                          textColor: duration[3] == true
-                                              ? Colors.white
-                                              : Colors.blue,
-                                          child: Text('5 Y'),
-                                          color: duration[3] == true
-                                              ? Colors.blue
-                                              : Colors.white,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            )),
-                        Container(
-                          height: h * 0.1,
-                          decoration: BoxDecoration(
-                              border: Border.all(color: Colors.blue)),
-                          child: ListView.builder(
-                              padding: EdgeInsets.only(top: h * 0.01),
-                              itemCount: _fullDetails.navList.length,
-                              itemBuilder: (context, index) {
-                                return Container(
-                                  height: h * 0.02,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      Text(_fullDetails.navList[index]
-                                          .toMap()['date']
-                                          .toString()),
-                                      Text(_fullDetails.navList[index]
-                                          .toMap()['nav']
-                                          .toString())
-                                    ],
-                                  ),
-                                );
-                              }),
-                        )
-                      ],
+                    decoration: BoxDecoration(
+                        color: change_color,
+                        borderRadius: BorderRadius.circular(w * 0.01)),
+                    padding: EdgeInsets.all(w * 0.005),
+                    child: Text(
+                      '(${percent_change().abs().toStringAsFixed(4)}%)',
+                      style: GoogleFonts.montserrat(color: Colors.white),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: w * 0.02),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Performance Chart',
+                    style: GoogleFonts.montserrat(fontSize: w * 0.045),
+                  ),
+                  Container(
+                    width: w * 0.31,
+                    height: h * 0.04,
+                    child: DropdownButtonFormField<String>(
+                      decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 0, horizontal: w * 0.045),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(w * 0.05))),
+                      hint: Text('1 week'),
+                      value: time,
+                      items: <String>['1 week', '1 month', '1 year', '5 year']
+                          .map((String time) {
+                        return DropdownMenuItem<String>(
+                          value: time,
+                          child: Text(time),
+                        );
+                      }).toList(),
+                      onChanged: (String? value) {
+                        time = value!;
+                        int t;
+
+                        if (time.compareTo('1 month') == 0) {
+                          t = 30;
+                        } else if (time.compareTo('1 year') == 0) {
+                          t = 365;
+                        } else if (time.compareTo('5 year') == 0) {
+                          t = 1800;
+                        } else
+                          t = 7;
+                        zoomPan.reset();
+                        change_time_period(t);
+
+                        setState(() {});
+                      },
                     ),
                   ),
+                ],
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.only(top: h * 0.01),
+              width: w,
+              height: h * 0.4,
+              child: Column(
+                children: [
+                  SfCartesianChart(
+                    plotAreaBorderWidth: 0,
+                    primaryXAxis: CategoryAxis(
+                        interactiveTooltip: InteractiveTooltip(enable: true),
+                        majorGridLines: MajorGridLines(width: 0)),
+                    primaryYAxis:
+                        NumericAxis(majorGridLines: MajorGridLines(width: 0)),
+                    legend: Legend(isVisible: false),
+                    tooltipBehavior: TooltipBehavior(enable: true),
+                    series: <ChartSeries<Data, String>>[
+                      AreaSeries<Data, String>(
+                          dataSource: _fullDetails.navList
+                              .sublist(0, time_period)
+                              .reversed
+                              .toList(),
+                          gradient: LinearGradient(
+                              colors: [
+                                change_color.withAlpha(255),
+                                change_color.withAlpha(200),
+                                change_color.withAlpha(150)
+                              ],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter),
+                          xValueMapper: (Data sales, _) => sales.date,
+                          yValueMapper: (Data sales, _) =>
+                              double.tryParse(sales.nav),
+                          name: 'NAV Value',
+                          // Enable data label
+                          dataLabelSettings:
+                              DataLabelSettings(isVisible: false))
+                    ],
+                    zoomPanBehavior: zoomPan,
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              height: h * 0.57,
+              margin: EdgeInsets.all(w * 0.01),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Positioned(
+                    top: 0,
+                    child: Container(
+                      margin: EdgeInsets.all(w * 0.01),
+                      height: h * 0.075,
+                      width: w,
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                      ),
+                      padding: EdgeInsets.symmetric(
+                          vertical: h * 0.005, horizontal: w * 0.05),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Historical NAVs',
+                            style: GoogleFonts.montserrat(
+                                fontSize: w * 0.05, color: Colors.white),
+                          ),
+                          IconButton(
+                              onPressed: () {},
+                              icon: Icon(
+                                Icons.calendar_today,
+                                size: w * 0.05,
+                                color: Colors.white,
+                              ))
+                        ],
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: h * 0.08,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: w * 0.01),
+                      child: Container(
+                        margin: EdgeInsets.symmetric(horizontal: w * 0.01),
+                        height: h * 0.51,
+                        width: w * 0.95,
+
+                        child: ListView.builder(
+                            padding: EdgeInsets.only(top: h * 0.01),
+                            itemCount: 6,
+                            itemBuilder: (context, index) {
+                              return Column(
+                                children: [
+                                  Container(
+                                    height: h * 0.05,
+                                    width: w * 0.95,
+                                    margin: EdgeInsets.symmetric(vertical: 1),
+                                    color: Colors.blue.shade300,
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: w * 0.05),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.center,
+                                      children: [
+                                        Text('November',style: GoogleFonts.montserrat(fontSize: w*0.03,color: Colors.white),),SizedBox(width: w*0.01,),Text('2021',style: GoogleFonts.montserrat(fontSize: w*0.03,color: Colors.white))
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    height: h * 0.15,
+                                    width: w * 0.95,
+                                    margin: EdgeInsets.symmetric(vertical: 1),
+                                    child: ListView.builder(itemCount:3,itemBuilder: (context,index){
+                                      return Container(
+                                        height: h*0.04,
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: w * 0.05),
+                                        child:Row(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text('13 November, 2021'),
+                                            Text('10.345',style: GoogleFonts.montserrat(fontSize: w*0.03,color: Colors.blue))
+                                          ],
+                                        ),
+                                      );
+
+                                    })
+                                  ),
+                                ],
+                              );
+                            }),
+                      ),
+                    ),
+                  ),
+                  Positioned(right:w*0.025,bottom:w*0.025,child: CircleAvatar(radius:w*0.04,backgroundColor: Colors.white,child: Icon(Icons.arrow_circle_up,size: w*0.08,),))
                 ],
               ),
             ),
