@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'model2.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:intl/intl.dart';
 
 class Details extends StatefulWidget {
   final String schemeCode;
@@ -59,6 +60,32 @@ class _DetailsState extends State<Details> {
     return change;
   }
 
+  listByDate ()  {
+    List<DateTime> dtList = [];
+    for (int i = 0; i < _fullDetails.navList.length; i++) {
+      dtList.add(DateTime.parse(
+          _fullDetails.navList[i].date.split('-').reversed.join('-')));
+    }
+    //dtList.reversed;
+    //print(dtList);
+    List<String> month_year = [];
+
+    //print(month_year);
+
+     for (int i = 0; i < _fullDetails.navList.length-1; i++) {
+       month_year.add(dtList[i].month.toString() + dtList[i].year.toString());
+
+    }
+     List<String> unq_month_year =[];
+     unq_month_year = month_year.toSet().toList();
+     print(unq_month_year.length);
+     month_year.length;
+    print(month_year.length);
+    print("hello");
+    //print(month_year);
+
+  }
+
   void fetchData2() async {
     String url1 = 'https://api.mfapi.in/mf/${widget.schemeCode}';
 
@@ -70,11 +97,25 @@ class _DetailsState extends State<Details> {
       previous_day = double.parse(_fullDetails.navList[1].toMap()['nav']);
       percent_change();
       setState(() {});
+      listByDate();
+      /*DateTime start=DateTime.parse(_fullDetails.navList[0].date.split('-').reversed.join('-'));
+      DateTime end=DateTime.parse(_fullDetails.navList[_fullDetails.navList.length-1].date.split('-').reversed.join('-'));
+      daysBetween(start, end);*/
+
     } else {
       throw Exception('Unexpected error occurred!');
     }
   }
 
+  /*void daysBetween(DateTime from, DateTime to) {
+    print(from.weekday);
+    from = DateTime(from.year, from.month, from.day);
+    to = DateTime(to.year, to.month, to.day);
+    _fullDetails.navList.forEach((x) {print(x.date); });
+
+    print((to.difference(from).inHours / 24).round().abs());
+    print(_fullDetails.navList.length);
+  }*/
   void change_time_period(int t) {
     for (int i = 0; i < duration.length; i++) {
       duration[i] = false;
@@ -106,6 +147,12 @@ class _DetailsState extends State<Details> {
   Widget build(BuildContext context) {
     double h = MediaQuery.of(context).size.height;
     double w = MediaQuery.of(context).size.width;
+    /*print(_fullDetails.navList[0].date);
+    print(_fullDetails.navList[0].date.split('-').reversed.join('-'));
+    DateTime dt = DateTime.parse(_fullDetails.navList[0].date.split('-').reversed.join('-'));
+    print(DateFormat('dd MMMM, yyyy').format(dt));
+    */
+
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.black),
@@ -306,7 +353,6 @@ class _DetailsState extends State<Details> {
                         margin: EdgeInsets.symmetric(horizontal: w * 0.01),
                         height: h * 0.51,
                         width: w * 0.95,
-
                         child: ListView.builder(
                             padding: EdgeInsets.only(top: h * 0.01),
                             itemCount: 6,
@@ -322,40 +368,69 @@ class _DetailsState extends State<Details> {
                                         horizontal: w * 0.05),
                                     child: Row(
                                       mainAxisAlignment:
-                                      MainAxisAlignment.center,
+                                          MainAxisAlignment.center,
                                       children: [
-                                        Text('November',style: GoogleFonts.montserrat(fontSize: w*0.03,color: Colors.white),),SizedBox(width: w*0.01,),Text('2021',style: GoogleFonts.montserrat(fontSize: w*0.03,color: Colors.white))
+                                        Text(
+                                          'November',
+                                          style: GoogleFonts.montserrat(
+                                              fontSize: w * 0.03,
+                                              color: Colors.white),
+                                        ),
+                                        SizedBox(
+                                          width: w * 0.01,
+                                        ),
+                                        Text('2021',
+                                            style: GoogleFonts.montserrat(
+                                                fontSize: w * 0.03,
+                                                color: Colors.white))
                                       ],
                                     ),
                                   ),
                                   Container(
-                                    height: h * 0.15,
-                                    width: w * 0.95,
-                                    margin: EdgeInsets.symmetric(vertical: 1),
-                                    child: ListView.builder(itemCount:3,itemBuilder: (context,index){
-                                      return Container(
-                                        height: h*0.04,
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: w * 0.05),
-                                        child:Row(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text('13 November, 2021'),
-                                            Text('10.345',style: GoogleFonts.montserrat(fontSize: w*0.03,color: Colors.blue))
-                                          ],
-                                        ),
-                                      );
-
-                                    })
-                                  ),
+                                      height: h * 0.15,
+                                      width: w * 0.95,
+                                      margin: EdgeInsets.symmetric(vertical: 1),
+                                      child: ListView.builder(
+                                          itemCount: 3,
+                                          itemBuilder: (context, index) {
+                                            return Container(
+                                              height: h * 0.04,
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: w * 0.05),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text('13 November, 2021'),
+                                                  Text('10.345',
+                                                      style: GoogleFonts
+                                                          .montserrat(
+                                                              fontSize:
+                                                                  w * 0.03,
+                                                              color:
+                                                                  Colors.blue))
+                                                ],
+                                              ),
+                                            );
+                                          })),
                                 ],
                               );
                             }),
                       ),
                     ),
                   ),
-                  Positioned(right:w*0.025,bottom:w*0.025,child: CircleAvatar(radius:w*0.04,backgroundColor: Colors.white,child: Icon(Icons.arrow_circle_up,size: w*0.08,),))
+                  Positioned(
+                      right: w * 0.025,
+                      bottom: w * 0.025,
+                      child: CircleAvatar(
+                        radius: w * 0.04,
+                        backgroundColor: Colors.white,
+                        child: Icon(
+                          Icons.arrow_circle_up,
+                          size: w * 0.08,
+                        ),
+                      ))
                 ],
               ),
             ),
