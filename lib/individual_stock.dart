@@ -73,13 +73,12 @@ class _DetailsState extends State<Details> {
     //print(month_year);
 
      for (int i = 0; i < _fullDetails.navList.length-1; i++) {
-       month_year.add(dtList[i].month.toString() + dtList[i].year.toString());
-
+       month_year.add("01-"+DateFormat("MM").format(dtList[i]) +"-"+ dtList[i].year.toString());
     }
      List<String> unq_month_year =[];
      unq_month_year = month_year.toSet().toList();
-     print(unq_month_year.length);
-     month_year.length;
+     print(unq_month_year);
+
     print(month_year.length);
     print("hello");
     //print(month_year);
