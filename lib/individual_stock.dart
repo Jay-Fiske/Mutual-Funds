@@ -76,7 +76,6 @@ class _DetailsState extends State<Details> {
     }
      List<String> unq_month_year =[];
      unq_month_year = month_year.toSet().toList();
-     //print(unq_month_year.length);
      List<DateTime> unq_dtList = [];
      unq_month_year.forEach((x) {unq_dtList.add(DateTime.parse(x));});
 
