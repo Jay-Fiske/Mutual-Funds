@@ -16,6 +16,7 @@ class Details extends StatefulWidget {
 }
 
 class _DetailsState extends State<Details> {
+  List<List<DateTime>> list_dtList = [];
   FullDetails _fullDetails = FullDetails(
       stocks: StockDetails(
           schemeCode: 0,
@@ -66,27 +67,26 @@ class _DetailsState extends State<Details> {
       dtList.add(DateTime.parse(
           _fullDetails.navList[i].date.split('-').reversed.join('-')));
     }
-    //dtList.reversed;
-    //print(dtList);
+
     List<String> month_year = [];
 
-    //print(month_year);
 
      for (int i = 0; i < _fullDetails.navList.length; i++) {
        month_year.add(dtList[i].year.toString()+DateFormat("MM").format(dtList[i]) +"-01");
     }
      List<String> unq_month_year =[];
      unq_month_year = month_year.toSet().toList();
-     print(unq_month_year.length);
+     //print(unq_month_year.length);
      List<DateTime> unq_dtList = [];
      unq_month_year.forEach((x) {unq_dtList.add(DateTime.parse(x));});
-     List<List<DateTime>> list_dtList = [];
+
      int i=0,j=0;
      List<DateTime> sub_dtList = [];
      while(j<dtList.length&&i<unq_dtList.length){
        sub_dtList.add(dtList[j]);
        if(dtList[j].month!=unq_dtList[i].month){
          list_dtList.add(sub_dtList);
+         //print(DateFormat('dd MMMM, yyyy').format(sub_dtList[0]).toString());
          //print(sub_dtList.length);
          sub_dtList.clear();
          i++;
@@ -95,8 +95,14 @@ class _DetailsState extends State<Details> {
        j++;
      }
 
-    print(list_dtList.length);
-    print("hello");
+    /*print(DateFormat('dd MMMM, yyyy').format(list_dtList[0][0]).toString());
+    print(DateFormat('dd MMMM, yyyy').format(list_dtList[1][1]).toString());
+    print(DateFormat('dd MMMM, yyyy').format(list_dtList[2][1]).toString());
+    print(DateFormat('dd MMMM, yyyy').format(list_dtList[3][2]).toString());
+    print(DateFormat('dd MMMM, yyyy').format(list_dtList[4][3]).toString());*/
+    list_dtList.forEach((x) {print(x.length); });
+     //print(list_dtList.length);
+    //print("hello");
 
   }
 
@@ -123,15 +129,6 @@ class _DetailsState extends State<Details> {
     }
   }
 
-  /*void daysBetween(DateTime from, DateTime to) {
-    print(from.weekday);
-    from = DateTime(from.year, from.month, from.day);
-    to = DateTime(to.year, to.month, to.day);
-    _fullDetails.navList.forEach((x) {print(x.date); });
-
-    print((to.difference(from).inHours / 24).round().abs());
-    print(_fullDetails.navList.length);
-  }*/
   void change_time_period(int t) {
     for (int i = 0; i < duration.length; i++) {
       duration[i] = false;
@@ -163,6 +160,7 @@ class _DetailsState extends State<Details> {
   Widget build(BuildContext context) {
     double h = MediaQuery.of(context).size.height;
     double w = MediaQuery.of(context).size.width;
+    int i =0;
     /*print(_fullDetails.navList[0].date);
     print(_fullDetails.navList[0].date.split('-').reversed.join('-'));
     DateTime dt = DateTime.parse(_fullDetails.navList[0].date.split('-').reversed.join('-'));
@@ -370,8 +368,9 @@ class _DetailsState extends State<Details> {
                         height: h * 0.51,
                         width: w * 0.95,
                         child: ListView.builder(
+
                             padding: EdgeInsets.only(top: h * 0.01),
-                            itemCount: 6,
+                            itemCount: list_dtList.length,
                             itemBuilder: (context, index) {
                               return Column(
                                 children: [
@@ -387,7 +386,7 @@ class _DetailsState extends State<Details> {
                                           MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                          'November',
+                                          '${DateFormat('MMMM').format(list_dtList[index][0]).toString()}',
                                           style: GoogleFonts.montserrat(
                                               fontSize: w * 0.03,
                                               color: Colors.white),
@@ -395,7 +394,7 @@ class _DetailsState extends State<Details> {
                                         SizedBox(
                                           width: w * 0.01,
                                         ),
-                                        Text('2021',
+                                        Text('${DateFormat('yyyy').format(list_dtList[index][0]).toString()}',
                                             style: GoogleFonts.montserrat(
                                                 fontSize: w * 0.03,
                                                 color: Colors.white))
@@ -407,8 +406,8 @@ class _DetailsState extends State<Details> {
                                       width: w * 0.95,
                                       margin: EdgeInsets.symmetric(vertical: 1),
                                       child: ListView.builder(
-                                          itemCount: 3,
-                                          itemBuilder: (context, index) {
+                                          itemCount: list_dtList[index].length,
+                                          itemBuilder: (context, x) {
                                             return Container(
                                               height: h * 0.04,
                                               padding: EdgeInsets.symmetric(
@@ -418,17 +417,18 @@ class _DetailsState extends State<Details> {
                                                     MainAxisAlignment
                                                         .spaceBetween,
                                                 children: [
-                                                  Text('13 November, 2021'),
-                                                  Text('10.345',
+                                                  Text('${DateFormat('dd MMMM, yyyy').format(list_dtList[index][x]).toString()}'),
+                                                  Text('${_fullDetails.navList[i++].nav}',
                                                       style: GoogleFonts
                                                           .montserrat(
                                                               fontSize:
                                                                   w * 0.03,
                                                               color:
-                                                                  Colors.blue))
+                                                                  Colors.blue)),
                                                 ],
                                               ),
                                             );
+
                                           })),
                                 ],
                               );
