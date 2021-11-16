@@ -85,8 +85,7 @@ class _DetailsState extends State<Details> {
        sub_dtList.add(dtList[j]);
        if(dtList[j].month!=unq_dtList[i].month){
          list_dtList.add(sub_dtList);
-         //print(DateFormat('dd MMMM, yyyy').format(sub_dtList[0]).toString());
-         //print(sub_dtList.length);
+
          sub_dtList.clear();
          i++;
          continue;
