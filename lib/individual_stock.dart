@@ -72,16 +72,31 @@ class _DetailsState extends State<Details> {
 
     //print(month_year);
 
-     for (int i = 0; i < _fullDetails.navList.length-1; i++) {
-       month_year.add("01-"+DateFormat("MM").format(dtList[i]) +"-"+ dtList[i].year.toString());
+     for (int i = 0; i < _fullDetails.navList.length; i++) {
+       month_year.add(dtList[i].year.toString()+DateFormat("MM").format(dtList[i]) +"-01");
     }
      List<String> unq_month_year =[];
      unq_month_year = month_year.toSet().toList();
-     print(unq_month_year);
+     print(unq_month_year.length);
+     List<DateTime> unq_dtList = [];
+     unq_month_year.forEach((x) {unq_dtList.add(DateTime.parse(x));});
+     List<List<DateTime>> list_dtList = [];
+     int i=0,j=0;
+     List<DateTime> sub_dtList = [];
+     while(j<dtList.length&&i<unq_dtList.length){
+       sub_dtList.add(dtList[j]);
+       if(dtList[j].month!=unq_dtList[i].month){
+         list_dtList.add(sub_dtList);
+         //print(sub_dtList.length);
+         sub_dtList.clear();
+         i++;
+         continue;
+                }
+       j++;
+     }
 
-    print(month_year.length);
+    print(list_dtList.length);
     print("hello");
-    //print(month_year);
 
   }
 
@@ -92,6 +107,8 @@ class _DetailsState extends State<Details> {
     if (response.statusCode == 200) {
       var jsonResponse = json.decode(response.body);
       _fullDetails = FullDetails.fromMap(jsonResponse);
+      print(_fullDetails.navList[0].toMap()['date']);
+      //DateTime dt = DateTime.parse(_fullDetails.navList[0].toMap()['date']);
       current_day = double.parse(_fullDetails.navList[0].toMap()['nav']);
       previous_day = double.parse(_fullDetails.navList[1].toMap()['nav']);
       percent_change();
