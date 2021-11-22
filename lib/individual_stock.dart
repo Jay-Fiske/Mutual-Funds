@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'model2.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/intl.dart';
+import 'dart:async';
 
 class Details extends StatefulWidget {
   final String schemeCode;
@@ -16,7 +17,9 @@ class Details extends StatefulWidget {
 }
 
 class _DetailsState extends State<Details> {
-  List<List<DateTime>> list_dtList = [];
+  Map dt_nav_map = Map<String, List<List<String>>>();
+  List<DateTime> list_dt = [];
+  int selectedIndex = 0;
   FullDetails _fullDetails = FullDetails(
       stocks: StockDetails(
           schemeCode: 0,
@@ -27,14 +30,15 @@ class _DetailsState extends State<Details> {
       navList: [Data(date: '', nav: '')],
       status: '');
   late ZoomPanBehavior zoomPan;
-
-  double scrollExtent = 0;
   List<bool> duration = [true, false, false, false];
   String time = '1 week';
   Color change_color = Colors.green.shade600;
   double current_day = 0.0, previous_day = 0.0;
   int time_period = 7;
   String sign = '+';
+  DateTime selectedDate = DateTime.now();
+
+  ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -49,6 +53,24 @@ class _DetailsState extends State<Details> {
         zoomMode: ZoomMode.xy);
   }
 
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDate,
+        firstDate: DateTime(2000),
+        lastDate: DateTime.now());
+    if (picked != null && picked != selectedDate)
+      setState(() {
+        selectedDate = picked;
+      });
+    for (int j = 0; j < list_dt.length; j++) {
+      if (selectedDate == list_dt[j]) {
+        selectedIndex = j;
+      }
+    }
+  }
+
+
   double percent_change() {
     double change;
     change = current_day - previous_day;
@@ -61,46 +83,42 @@ class _DetailsState extends State<Details> {
     return change;
   }
 
-  listByDate ()  {
+  listByDate() {
     List<DateTime> dtList = [];
+    List<String> str_list = [];
+    List<String> str_date_list = [];
+    List<String> unq_str_list = [];
     for (int i = 0; i < _fullDetails.navList.length; i++) {
       dtList.add(DateTime.parse(
           _fullDetails.navList[i].date.split('-').reversed.join('-')));
     }
+    dtList.forEach((x) {
+      str_date_list.add(
+          '${DateFormat('yyyy').format(x)}-${DateFormat('MM').format(x)}-${DateFormat('dd').format(x)}');
+      str_list.add(
+          '${DateFormat('yyyy').format(x)}-${DateFormat('MM').format(x)}-01');
+    });
+    List dat_nav = List.generate(dtList.length, (_) => List.generate(2, (_) => 'list',growable: true),growable: true);
 
-    List<String> month_year = [];
-
-
-     for (int i = 0; i < _fullDetails.navList.length; i++) {
-       month_year.add(dtList[i].year.toString()+DateFormat("MM").format(dtList[i]) +"-01");
+    for(int i=0;i<dtList.length;i++){
+      dat_nav[i][0]=str_date_list[i];
+      dat_nav[i][1]=_fullDetails.navList[i].nav;
     }
-     List<String> unq_month_year =[];
-     unq_month_year = month_year.toSet().toList();
-     List<DateTime> unq_dtList = [];
-     unq_month_year.forEach((x) {unq_dtList.add(DateTime.parse(x));});
+    unq_str_list = str_list.toSet().toList();
+    list_dt = dtList;
 
-     int i=0,j=0;
-     List<DateTime> sub_dtList = [];
-     while(j<dtList.length&&i<unq_dtList.length){
-       sub_dtList.add(dtList[j]);
-       if(dtList[j].month!=unq_dtList[i].month){
-         list_dtList.add(sub_dtList);
+    unq_str_list.forEach((x) {
+      dt_nav_map[x] = <List<String>>[];
+      dat_nav.forEach((y) {
+        if (x.contains(y[0].substring(0, 7).toString())) {
+          dt_nav_map[x].add(y);
+        }
+        ;
+      });
+    });
 
-         sub_dtList.clear();
-         i++;
-         continue;
-                }
-       j++;
-     }
+    setState(() {});
 
-    /*print(DateFormat('dd MMMM, yyyy').format(list_dtList[0][0]).toString());
-    print(DateFormat('dd MMMM, yyyy').format(list_dtList[1][1]).toString());
-    print(DateFormat('dd MMMM, yyyy').format(list_dtList[2][1]).toString());
-    print(DateFormat('dd MMMM, yyyy').format(list_dtList[3][2]).toString());
-    print(DateFormat('dd MMMM, yyyy').format(list_dtList[4][3]).toString());*/
-    list_dtList.forEach((x) {print(x.length); });
-     //print(list_dtList.length);
-    //print("hello");
 
   }
 
@@ -111,8 +129,6 @@ class _DetailsState extends State<Details> {
     if (response.statusCode == 200) {
       var jsonResponse = json.decode(response.body);
       _fullDetails = FullDetails.fromMap(jsonResponse);
-      print(_fullDetails.navList[0].toMap()['date']);
-      //DateTime dt = DateTime.parse(_fullDetails.navList[0].toMap()['date']);
       current_day = double.parse(_fullDetails.navList[0].toMap()['nav']);
       previous_day = double.parse(_fullDetails.navList[1].toMap()['nav']);
       percent_change();
@@ -158,12 +174,7 @@ class _DetailsState extends State<Details> {
   Widget build(BuildContext context) {
     double h = MediaQuery.of(context).size.height;
     double w = MediaQuery.of(context).size.width;
-    int i =0;
-    /*print(_fullDetails.navList[0].date);
-    print(_fullDetails.navList[0].date.split('-').reversed.join('-'));
-    DateTime dt = DateTime.parse(_fullDetails.navList[0].date.split('-').reversed.join('-'));
-    print(DateFormat('dd MMMM, yyyy').format(dt));
-    */
+
 
     return Scaffold(
       appBar: AppBar(
@@ -322,7 +333,7 @@ class _DetailsState extends State<Details> {
               ),
             ),
             Container(
-              height: h * 0.57,
+              height: h * 0.6,
               margin: EdgeInsets.all(w * 0.01),
               child: Stack(
                 alignment: Alignment.center,
@@ -347,7 +358,10 @@ class _DetailsState extends State<Details> {
                                 fontSize: w * 0.05, color: Colors.white),
                           ),
                           IconButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                _selectDate(context);
+                              
+                              },
                               icon: Icon(
                                 Icons.calendar_today,
                                 size: w * 0.05,
@@ -366,9 +380,9 @@ class _DetailsState extends State<Details> {
                         height: h * 0.51,
                         width: w * 0.95,
                         child: ListView.builder(
-
+                            controller: _scrollController,
                             padding: EdgeInsets.only(top: h * 0.01),
-                            itemCount: list_dtList.length,
+                            itemCount: dt_nav_map.length,
                             itemBuilder: (context, index) {
                               return Column(
                                 children: [
@@ -384,27 +398,28 @@ class _DetailsState extends State<Details> {
                                           MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                          '${DateFormat('MMMM').format(list_dtList[index][0]).toString()}',
+                                          DateFormat('MMMM yyyy').format(DateTime.parse(dt_nav_map.keys.elementAt(index))),
                                           style: GoogleFonts.montserrat(
                                               fontSize: w * 0.03,
                                               color: Colors.white),
                                         ),
-                                        SizedBox(
-                                          width: w * 0.01,
-                                        ),
-                                        Text('${DateFormat('yyyy').format(list_dtList[index][0]).toString()}',
-                                            style: GoogleFonts.montserrat(
-                                                fontSize: w * 0.03,
-                                                color: Colors.white))
                                       ],
                                     ),
                                   ),
                                   Container(
-                                      height: h * 0.15,
+                                      height: h *
+                                          0.04 *
+                                          dt_nav_map.values
+                                              .elementAt(index)
+                                              .length,
                                       width: w * 0.95,
                                       margin: EdgeInsets.symmetric(vertical: 1),
                                       child: ListView.builder(
-                                          itemCount: list_dtList[index].length,
+                                          physics:
+                                              NeverScrollableScrollPhysics(),
+                                          itemCount: dt_nav_map.values
+                                              .elementAt(index)
+                                              .length,
                                           itemBuilder: (context, x) {
                                             return Container(
                                               height: h * 0.04,
@@ -415,8 +430,12 @@ class _DetailsState extends State<Details> {
                                                     MainAxisAlignment
                                                         .spaceBetween,
                                                 children: [
-                                                  Text('${DateFormat('dd MMMM, yyyy').format(list_dtList[index][x]).toString()}'),
-                                                  Text('${_fullDetails.navList[i++].nav}',
+                                                  Text(DateFormat('dd MMMM,  yyyy').format(DateTime.parse(dt_nav_map.values
+                                                      .elementAt(index)[x][0]))
+                                                      ),
+                                                  Text(
+                                                      dt_nav_map.values
+                                                          .elementAt(index)[x][1],
                                                       style: GoogleFonts
                                                           .montserrat(
                                                               fontSize:
@@ -426,7 +445,6 @@ class _DetailsState extends State<Details> {
                                                 ],
                                               ),
                                             );
-
                                           })),
                                 ],
                               );
@@ -440,9 +458,17 @@ class _DetailsState extends State<Details> {
                       child: CircleAvatar(
                         radius: w * 0.04,
                         backgroundColor: Colors.white,
-                        child: Icon(
-                          Icons.arrow_circle_up,
-                          size: w * 0.08,
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          icon: Icon(
+                            Icons.arrow_circle_up,
+                            size: w * 0.08,
+                          ),
+                          onPressed: () {
+                            _scrollController.animateTo(0,
+                                duration: Duration(seconds: 1),
+                                curve: Curves.fastOutSlowIn);
+                          },
                         ),
                       ))
                 ],
