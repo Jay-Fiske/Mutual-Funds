@@ -19,9 +19,10 @@ class Details extends StatefulWidget {
 class _DetailsState extends State<Details> {
   @override
   void initState() {
+
     super.initState();
-    time_period =7;
     fetchData2();
+
     _scrollController = ScrollController();
     //_scrollController.addListener(_onScrollEvent);
     zoomPan = ZoomPanBehavior(
@@ -49,7 +50,7 @@ class _DetailsState extends State<Details> {
   String time = '1 week';
   Color change_color = Colors.green.shade600;
   double current_day = 0.0, previous_day = 0.0;
-  int time_period = 0;
+  int time_period = 7;
   String sign = '+';
   DateTime selectedDate = DateTime.now();
   double _pixels=0;
@@ -69,8 +70,6 @@ class _DetailsState extends State<Details> {
     }
   }
 
-
-
   double percent_change() {
     double change;
     change = current_day - previous_day;
@@ -84,7 +83,6 @@ class _DetailsState extends State<Details> {
   }
 
   scrollOnDate(BuildContext context) async{
-    bool if_exist = false;
     int months = 0;
     int dt_index = 0;
     await _selectDate(context);
@@ -213,7 +211,11 @@ class _DetailsState extends State<Details> {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: list_dt.length==0 ?
+      Center(
+        child: CircularProgressIndicator(),
+      )
+          : Padding(
         padding: EdgeInsets.symmetric(horizontal: w * 0.02),
         child: SingleChildScrollView(
           child:
@@ -339,7 +341,7 @@ class _DetailsState extends State<Details> {
                     series: <ChartSeries<Data, String>>[
                       AreaSeries<Data, String>(
                           dataSource: _fullDetails.navList
-                              .sublist(0, time_period)
+                              .sublist(_fullDetails.navList.length > 1 ? time_period : 0)
                               .reversed
                               .toList(),
                           gradient: LinearGradient(
