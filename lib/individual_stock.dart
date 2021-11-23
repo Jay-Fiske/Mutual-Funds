@@ -17,6 +17,21 @@ class Details extends StatefulWidget {
 }
 
 class _DetailsState extends State<Details> {
+  @override
+  void initState() {
+    super.initState();
+    time_period =7;
+    fetchData2();
+    _scrollController = ScrollController();
+    //_scrollController.addListener(_onScrollEvent);
+    zoomPan = ZoomPanBehavior(
+        enablePinching: true,
+        enableSelectionZooming: true,
+        enableMouseWheelZooming: true,
+        enablePanning: true,
+        zoomMode: ZoomMode.xy);
+  }
+  late ScrollController _scrollController;
   Map dt_nav_map = Map<String, List<List<String>>>();
   List<DateTime> list_dt = [];
   int selectedIndex = 0;
@@ -34,41 +49,26 @@ class _DetailsState extends State<Details> {
   String time = '1 week';
   Color change_color = Colors.green.shade600;
   double current_day = 0.0, previous_day = 0.0;
-  int time_period = 7;
+  int time_period = 0;
   String sign = '+';
   DateTime selectedDate = DateTime.now();
+  double _pixels=0;
 
-  ScrollController _scrollController = ScrollController();
 
-  @override
-  void initState() {
-    super.initState();
-    fetchData2();
-
-    zoomPan = ZoomPanBehavior(
-        enablePinching: true,
-        enableSelectionZooming: true,
-        enableMouseWheelZooming: true,
-        enablePanning: true,
-        zoomMode: ZoomMode.xy);
-  }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
         context: context,
         initialDate: selectedDate,
-        firstDate: DateTime(2000),
+        firstDate: list_dt[list_dt.length-1],
         lastDate: DateTime.now());
-    if (picked != null && picked != selectedDate)
+    if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
       });
-    for (int j = 0; j < list_dt.length; j++) {
-      if (selectedDate == list_dt[j]) {
-        selectedIndex = j;
-      }
     }
   }
+
 
 
   double percent_change() {
@@ -81,6 +81,41 @@ class _DetailsState extends State<Details> {
       setState(() {});
     }
     return change;
+  }
+
+  scrollOnDate(BuildContext context) async{
+    bool if_exist = false;
+    int months = 0;
+    int dt_index = 0;
+    await _selectDate(context);
+    if (selectedDate.year == list_dt[0].year) {
+      months = list_dt[0].month - selectedDate.month;
+    } else if (selectedDate.year == (list_dt[0].year - 1)) {
+      months = (12 - selectedDate.month) + (list_dt[0].month);
+    } else {
+      months = (12 - selectedDate.month) +
+          (list_dt[0].month) +
+          (12 * (list_dt[0].year - selectedDate.year - 1));
+    }
+
+    for (int i = 0; i < list_dt.length; i++) {
+      if (list_dt[i].compareTo(selectedDate) == 0) {
+        dt_index = i;
+        break;
+      }
+      else if (list_dt[i].compareTo(selectedDate) < 0) {
+        dt_index = i-1;
+        break;
+      }
+    }
+
+    _pixels = (months+1) * MediaQuery.of(context).size.height * 0.0551 +
+        dt_index * MediaQuery.of(context).size.height * 0.04;
+
+
+    setState(() {
+      _scrollController.animateTo(_pixels.abs(), duration: Duration(milliseconds: 500), curve: Curves.fastOutSlowIn);
+    });
   }
 
   listByDate() {
@@ -98,11 +133,13 @@ class _DetailsState extends State<Details> {
       str_list.add(
           '${DateFormat('yyyy').format(x)}-${DateFormat('MM').format(x)}-01');
     });
-    List dat_nav = List.generate(dtList.length, (_) => List.generate(2, (_) => 'list',growable: true),growable: true);
+    List dat_nav = List.generate(
+        dtList.length, (_) => List.generate(2, (_) => 'list', growable: true),
+        growable: true);
 
-    for(int i=0;i<dtList.length;i++){
-      dat_nav[i][0]=str_date_list[i];
-      dat_nav[i][1]=_fullDetails.navList[i].nav;
+    for (int i = 0; i < dtList.length; i++) {
+      dat_nav[i][0] = str_date_list[i];
+      dat_nav[i][1] = _fullDetails.navList[i].nav;
     }
     unq_str_list = str_list.toSet().toList();
     list_dt = dtList;
@@ -118,8 +155,6 @@ class _DetailsState extends State<Details> {
     });
 
     setState(() {});
-
-
   }
 
   void fetchData2() async {
@@ -134,16 +169,13 @@ class _DetailsState extends State<Details> {
       percent_change();
       setState(() {});
       listByDate();
-      /*DateTime start=DateTime.parse(_fullDetails.navList[0].date.split('-').reversed.join('-'));
-      DateTime end=DateTime.parse(_fullDetails.navList[_fullDetails.navList.length-1].date.split('-').reversed.join('-'));
-      daysBetween(start, end);*/
-
     } else {
       throw Exception('Unexpected error occurred!');
     }
   }
 
   void change_time_period(int t) {
+
     for (int i = 0; i < duration.length; i++) {
       duration[i] = false;
     }
@@ -174,7 +206,6 @@ class _DetailsState extends State<Details> {
   Widget build(BuildContext context) {
     double h = MediaQuery.of(context).size.height;
     double w = MediaQuery.of(context).size.width;
-
 
     return Scaffold(
       appBar: AppBar(
@@ -359,8 +390,7 @@ class _DetailsState extends State<Details> {
                           ),
                           IconButton(
                               onPressed: () {
-                                _selectDate(context);
-                              
+                                scrollOnDate(context);
                               },
                               icon: Icon(
                                 Icons.calendar_today,
@@ -377,11 +407,11 @@ class _DetailsState extends State<Details> {
                       padding: EdgeInsets.symmetric(horizontal: w * 0.01),
                       child: Container(
                         margin: EdgeInsets.symmetric(horizontal: w * 0.01),
-                        height: h * 0.51,
+                        height: h * 0.5,
                         width: w * 0.95,
                         child: ListView.builder(
                             controller: _scrollController,
-                            padding: EdgeInsets.only(top: h * 0.01),
+                            padding: EdgeInsets.only(top: h * 0.001),
                             itemCount: dt_nav_map.length,
                             itemBuilder: (context, index) {
                               return Column(
@@ -398,7 +428,9 @@ class _DetailsState extends State<Details> {
                                           MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                          DateFormat('MMMM yyyy').format(DateTime.parse(dt_nav_map.keys.elementAt(index))),
+                                          DateFormat('MMMM yyyy').format(
+                                              DateTime.parse(dt_nav_map.keys
+                                                  .elementAt(index))),
                                           style: GoogleFonts.montserrat(
                                               fontSize: w * 0.03,
                                               color: Colors.white),
@@ -430,12 +462,17 @@ class _DetailsState extends State<Details> {
                                                     MainAxisAlignment
                                                         .spaceBetween,
                                                 children: [
-                                                  Text(DateFormat('dd MMMM,  yyyy').format(DateTime.parse(dt_nav_map.values
-                                                      .elementAt(index)[x][0]))
-                                                      ),
+                                                  Text(DateFormat(
+                                                          'dd MMMM,  yyyy')
+                                                      .format(DateTime.parse(
+                                                          dt_nav_map.values
+                                                                  .elementAt(
+                                                                      index)[x]
+                                                              [0]))),
                                                   Text(
                                                       dt_nav_map.values
-                                                          .elementAt(index)[x][1],
+                                                          .elementAt(
+                                                              index)[x][1],
                                                       style: GoogleFonts
                                                           .montserrat(
                                                               fontSize:
