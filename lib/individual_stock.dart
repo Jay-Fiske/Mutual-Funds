@@ -205,7 +205,7 @@ class _DetailsState extends State<Details> {
     double h = MediaQuery.of(context).size.height;
     double w = MediaQuery.of(context).size.width;
 
-    return Scaffold(
+    return Scaffold(backgroundColor: Colors.white,
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.black),
         backgroundColor: Colors.white,
@@ -341,7 +341,7 @@ class _DetailsState extends State<Details> {
                     series: <ChartSeries<Data, String>>[
                       AreaSeries<Data, String>(
                           dataSource: _fullDetails.navList
-                              .sublist(_fullDetails.navList.length > 1 ? time_period : 0)
+                              .sublist(0,time_period)
                               .reversed
                               .toList(),
                           gradient: LinearGradient(

@@ -102,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         elevation: 1,
         title: !isSearch
-            ? Text('Scheme Analyzer')
+            ? Text('Mutual Funds')
             : Container(
           width: double.infinity,
           height: 40,
